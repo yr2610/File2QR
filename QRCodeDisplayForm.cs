@@ -18,7 +18,7 @@ public class QRCodeDisplayForm : Form
         this.skippedIndexes = skippedIndexes;
         this.Size = new Size(320, 360); // ウィンドウのサイズを調整
 
-        pictureBox = new PictureBox { Dock = DockStyle.Fill };
+        pictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
         Controls.Add(pictureBox);
 
         indexLabel = new Label
@@ -35,6 +35,14 @@ public class QRCodeDisplayForm : Form
         timer.Interval = 500; // 初期の切り替え速度（ミリ秒）
         timer.Tick += (sender, e) => ShowNextQRCode();
         timer.Start();
+
+        this.Resize += new EventHandler(QRCodeDisplayForm_Resize); // ウィンドウサイズ変更イベントを追加
+    }
+
+    private void QRCodeDisplayForm_Resize(object? sender, EventArgs e)
+    {
+        int size = Math.Min(this.ClientSize.Width, this.ClientSize.Height);
+        pictureBox.Size = new Size(size, size);
     }
 
     private void ShowNextQRCode()

@@ -53,7 +53,7 @@
             qrCodeDisplayForm = new QRCodeDisplayForm(qrCodes, skippedIndexes);
             qrCodeDisplayForm.Show();
 
-            qrCodeIndexDisplayForm = new QRCodeIndexDisplayForm(qrCodes);
+            qrCodeIndexDisplayForm = new QRCodeIndexDisplayForm(qrCodes, skippedIndexes);
             qrCodeIndexDisplayForm.Show();
         }
     }
