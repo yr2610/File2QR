@@ -39,7 +39,7 @@
                 };
 
                 var infoQRCode = QRCodeGenerator.GenerateInfoQRCode(info);
-                qrCodes.Insert(0, infoQRCode);
+                qrCodes.Insert(0, infoQRCode); // 情報QRコードをリストの最初に追加
 
                 startDisplayButton.Enabled = true;
             }
