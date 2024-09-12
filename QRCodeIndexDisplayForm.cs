@@ -8,13 +8,13 @@ public class QRCodeIndexDisplayForm : Form
     private PictureBox pictureBox;
     private System.Windows.Forms.Timer timer;
     private List<Bitmap> qrCodes;
-    private HashSet<int> skippedIndexes; // skippedIndexesの定義を追加
+    private bool[] skipIndexes; // スキップするインデックスを管理する配列
     private int currentIndex = 0;
 
-    public QRCodeIndexDisplayForm(List<Bitmap> qrCodes, HashSet<int> skippedIndexes)
+    public QRCodeIndexDisplayForm(List<Bitmap> qrCodes, bool[] skipIndexes)
     {
         this.qrCodes = qrCodes;
-        this.skippedIndexes = skippedIndexes; // コンストラクタで受け取る
+        this.skipIndexes = skipIndexes;
         this.Size = new Size(300, 150); // ウィンドウの幅を広げ、高さを固定
 
         pictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
@@ -36,6 +36,11 @@ public class QRCodeIndexDisplayForm : Form
 
     private void ShowNextQRCode()
     {
+        while (skipIndexes[currentIndex])
+        {
+            currentIndex = (currentIndex + 1) % qrCodes.Count;
+        }
+
         var qrWriter = new BarcodeWriter<Bitmap>
         {
             Format = BarcodeFormat.QR_CODE,

@@ -50,10 +50,12 @@
     {
         if (qrCodes != null)
         {
-            qrCodeDisplayForm = new QRCodeDisplayForm(qrCodes, skippedIndexes);
+            bool[] skipIndexes = new bool[qrCodes.Count]; // スキップするインデックスを管理する配列を初期化
+
+            qrCodeDisplayForm = new QRCodeDisplayForm(qrCodes, skipIndexes);
             qrCodeDisplayForm.Show();
 
-            qrCodeIndexDisplayForm = new QRCodeIndexDisplayForm(qrCodes, skippedIndexes);
+            qrCodeIndexDisplayForm = new QRCodeIndexDisplayForm(qrCodes, skipIndexes);
             qrCodeIndexDisplayForm.Show();
         }
     }
