@@ -3,7 +3,7 @@
 public class QRCodeInfo
 {
     public int TotalQRCodes { get; set; }
-    public int ChunkSize { get; set; }
+    public bool IsCompressed { get; set; }
 
     public string ToYaml()
     {

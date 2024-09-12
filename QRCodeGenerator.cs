@@ -23,11 +23,28 @@ public class QRCodeGenerator
                     Width = 300,
                     Margin = 1
                 },
-                Renderer = new BitmapRenderer() // ここでレンダラーを設定
+                Renderer = new BitmapRenderer()
             };
 
             qrCodes.Add(qrWriter.Write(base64String));
         }
         return qrCodes;
+    }
+
+    public static Bitmap GenerateInfoQRCode(QRCodeInfo info)
+    {
+        var qrWriter = new BarcodeWriter<Bitmap>
+        {
+            Format = BarcodeFormat.QR_CODE,
+            Options = new QrCodeEncodingOptions
+            {
+                Height = 300,
+                Width = 300,
+                Margin = 1
+            },
+            Renderer = new BitmapRenderer()
+        };
+
+        return qrWriter.Write(info.ToYaml());
     }
 }
