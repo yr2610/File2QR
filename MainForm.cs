@@ -18,31 +18,29 @@
         startDisplayButton.Click += StartDisplayButton_Click;
         speedTrackBar.ValueChanged += SpeedTrackBar_ValueChanged;
 
-        var skipIndexTextBox = new TextBox { Dock = DockStyle.Top };
-        var skipIndexButton = new Button { Text = "スキップ", Dock = DockStyle.Top };
-        var skipRangeTextBox = new TextBox { Dock = DockStyle.Top };
-        var skipRangeButton = new Button { Text = "範囲スキップ", Dock = DockStyle.Top };
-        var skipHierarchyTextBox = new TextBox { Dock = DockStyle.Top };
-        var skipHierarchyButton = new Button { Text = "階層スキップ", Dock = DockStyle.Top };
+        var skipInputTextBox = new TextBox { Dock = DockStyle.Top };
+        var skipButton = new Button { Text = "スキップ", Dock = DockStyle.Top };
         var cancelSkipTextBox = new TextBox { Dock = DockStyle.Top };
         var cancelSkipButton = new Button { Text = "スキップキャンセル", Dock = DockStyle.Top };
 
-        skipIndexButton.Click += (sender, e) =>
+        skipButton.Click += (sender, e) =>
         {
-            if (int.TryParse(skipIndexTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out int index))
+            string input = skipInputTextBox.Text;
+            if (input.Contains(":"))
             {
+                // 階層スキップ
+                qrCodeDisplayForm?.SkipIndexHierarchy(input);
+            }
+            else if (input.Contains("-"))
+            {
+                // 範囲スキップ
+                qrCodeDisplayForm?.SkipIndexRange(input);
+            }
+            else if (int.TryParse(input, System.Globalization.NumberStyles.HexNumber, null, out int index))
+            {
+                // 単一スキップ
                 qrCodeDisplayForm?.SkipIndex(index);
             }
-        };
-
-        skipRangeButton.Click += (sender, e) =>
-        {
-            qrCodeDisplayForm?.SkipIndexRange(skipRangeTextBox.Text);
-        };
-
-        skipHierarchyButton.Click += (sender, e) =>
-        {
-            qrCodeDisplayForm?.SkipIndexHierarchy(skipHierarchyTextBox.Text);
         };
 
         cancelSkipButton.Click += (sender, e) =>
@@ -55,12 +53,8 @@
 
         Controls.Add(cancelSkipButton);
         Controls.Add(cancelSkipTextBox);
-        Controls.Add(skipHierarchyButton);
-        Controls.Add(skipHierarchyTextBox);
-        Controls.Add(skipRangeButton);
-        Controls.Add(skipRangeTextBox);
-        Controls.Add(skipIndexButton);
-        Controls.Add(skipIndexTextBox);
+        Controls.Add(skipButton);
+        Controls.Add(skipInputTextBox);
         Controls.Add(speedTrackBar);
         Controls.Add(startDisplayButton);
         Controls.Add(selectFileButton);

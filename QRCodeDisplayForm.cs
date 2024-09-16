@@ -81,17 +81,22 @@
         }
     }
 
-    public void SkipIndexHierarchy(string hexHierarchy)
+    public void SkipIndexHierarchy(string hierarchy)
     {
-        if (int.TryParse(hexHierarchy, System.Globalization.NumberStyles.HexNumber, null, out int index))
+        var parts = hierarchy.Split(':');
+        if (parts.Length == 2 &&
+            int.TryParse(parts[0], System.Globalization.NumberStyles.HexNumber, null, out int level) &&
+            int.TryParse(parts[1], System.Globalization.NumberStyles.HexNumber, null, out int bitmask))
         {
-            int start = index * 256;
-            int end = start + 255;
-            for (int i = start; i <= end; i++)
+            for (int i = 0; i < 8; i++)
             {
-                if (i >= 0 && i < skipIndexes.Length)
+                if ((bitmask & (1 << i)) != 0)
                 {
-                    skipIndexes[i] = true;
+                    int index = level * 8 + i;
+                    if (index >= 0 && index < skipIndexes.Length)
+                    {
+                        skipIndexes[index] = true;
+                    }
                 }
             }
         }
