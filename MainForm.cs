@@ -7,6 +7,7 @@ public class MainForm : Form
     private TrackBar speedTrackBar;
     private Button colorSelectButton;
     private Color selectedColor = Color.Black; // デフォルトの色を黒に設定
+    private int chunkSize = 1000; // デフォルトのチャンクサイズを設定
     private QRCodeDisplayForm? qrCodeDisplayForm;
     private QRCodeIndexDisplayForm? qrCodeIndexDisplayForm;
     private List<Bitmap>? qrCodes;
@@ -71,6 +72,9 @@ public class MainForm : Form
         sharedTimer = new System.Windows.Forms.Timer();
         sharedTimer.Interval = 1000 / speedTrackBar.Value; // 初期の切り替え速度
         sharedTimer.Tick += SharedTimer_Tick;
+
+        // Load settings from config.yaml
+        LoadSettingsFromConfig();
     }
 
     private void ColorSelectButton_Click(object? sender, EventArgs e)
@@ -81,28 +85,28 @@ public class MainForm : Form
             {
                 selectedColor = colorDialog.Color;
                 // 設定を記憶するために、config.yaml に保存する処理を追加
-                SaveColorToConfig(selectedColor);
+                SaveSettingsToConfig(selectedColor, chunkSize);
             }
         }
     }
 
-    private void SaveColorToConfig(Color color)
+    private void SaveSettingsToConfig(Color color, int chunkSize)
     {
-        // config.yaml に色を保存する処理を実装
-        var config = new { Color = ColorTranslator.ToHtml(color) };
+        // config.yaml に色とチャンクサイズを保存する処理を実装
+        var config = new { Color = ColorTranslator.ToHtml(color), ChunkSize = chunkSize };
         var yaml = new Serializer().Serialize(config);
         File.WriteAllText("config.yaml", yaml);
     }
 
-    private Color LoadColorFromConfig()
+    private void LoadSettingsFromConfig()
     {
         if (File.Exists("config.yaml"))
         {
             var yaml = File.ReadAllText("config.yaml");
             var config = new Deserializer().Deserialize<dynamic>(yaml);
-            return ColorTranslator.FromHtml(config["Color"]);
+            selectedColor = ColorTranslator.FromHtml(config["Color"]);
+            chunkSize = int.Parse(config["ChunkSize"].ToString());
         }
-        return Color.Black; // デフォルトの色を黒に設定
     }
 
     private void SharedTimer_Tick(object? sender, EventArgs e)
@@ -155,7 +159,7 @@ public class MainForm : Form
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 byte[] fileData = FileCompressor.GetFileData(openFileDialog.FileName);
-                qrCodes = QRCodeGenerator.GenerateQRCodes(fileData, 1000, selectedColor); // 色を指定してQRコードを生成
+                qrCodes = QRCodeGenerator.GenerateQRCodes(fileData, chunkSize, selectedColor); // 色とチャンクサイズを指定してQRコードを生成
 
                 var info = new QRCodeInfo
                 {
