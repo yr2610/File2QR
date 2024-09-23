@@ -39,7 +39,8 @@ public class QRCodeIndexDisplayForm : Form
             Renderer = new BitmapRenderer()
         };
 
-        pictureBox.Image = qrWriter.Write($"Index: {index + 1}/{qrCodes.Count}");
+        string hexIndex = index.ToString("X"); // 16進数に変換
+        pictureBox.Image = qrWriter.Write(hexIndex);
     }
 
 }
