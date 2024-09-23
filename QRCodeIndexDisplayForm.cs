@@ -6,23 +6,15 @@ using System.Windows.Forms;
 public class QRCodeIndexDisplayForm : Form
 {
     private PictureBox pictureBox;
-    private System.Windows.Forms.Timer timer;
     private List<Bitmap> qrCodes;
-    private bool[] skipIndexes;
 
     public QRCodeIndexDisplayForm(List<Bitmap> qrCodes, bool[] skipIndexes)
     {
         this.qrCodes = qrCodes;
-        this.skipIndexes = skipIndexes;
         this.Size = new Size(300, 150); // ウィンドウの幅を広げ、高さを固定
 
         pictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
         Controls.Add(pictureBox);
-
-        timer = new System.Windows.Forms.Timer();
-        timer.Interval = 500; // 初期の切り替え速度（ミリ秒）
-        timer.Tick += (sender, e) => ShowNextQRCode();
-        timer.Start();
 
         this.Resize += new EventHandler(QRCodeIndexDisplayForm_Resize); // ウィンドウサイズ変更イベントを追加
     }
@@ -33,16 +25,11 @@ public class QRCodeIndexDisplayForm : Form
         pictureBox.Size = new Size(width, pictureBox.Height); // 幅だけを変更
     }
 
-    private void ShowNextQRCode()
+    public void UpdateQRCode(int index)
     {
-        if (QRCodeDisplayForm.skipIndexes == null || QRCodeDisplayForm.skipIndexes.Length == 0)
+        if (QRCodeDisplayForm.SkipIndexes == null || QRCodeDisplayForm.SkipIndexes.Length == 0)
         {
             return;
-        }
-
-        while (QRCodeDisplayForm.skipIndexes[QRCodeDisplayForm.currentIndex])
-        {
-            QRCodeDisplayForm.currentIndex = (QRCodeDisplayForm.currentIndex + 1) % QRCodeDisplayForm.skipIndexes.Length;
         }
 
         var qrWriter = new BarcodeWriter<Bitmap>
@@ -57,12 +44,6 @@ public class QRCodeIndexDisplayForm : Form
             Renderer = new BitmapRenderer()
         };
 
-        pictureBox.Image = qrWriter.Write($"Index: {QRCodeDisplayForm.currentIndex + 1}/{qrCodes.Count}");
-        QRCodeDisplayForm.currentIndex = (QRCodeDisplayForm.currentIndex + 1) % QRCodeDisplayForm.skipIndexes.Length;
-    }
-
-    public void SetInterval(int interval)
-    {
-        timer.Interval = interval;
+        pictureBox.Image = qrWriter.Write($"Index: {index + 1}/{qrCodes.Count}");
     }
 }

@@ -7,6 +7,8 @@
     private QRCodeIndexDisplayForm? qrCodeIndexDisplayForm;
     private List<Bitmap>? qrCodes;
     private HashSet<int> skippedIndexes = new HashSet<int>();
+    private System.Windows.Forms.Timer sharedTimer;
+    private int currentIndex = 0;
 
     public MainForm()
     {
@@ -58,6 +60,28 @@
         Controls.Add(speedTrackBar);
         Controls.Add(startDisplayButton);
         Controls.Add(selectFileButton);
+
+        sharedTimer = new System.Windows.Forms.Timer();
+        sharedTimer.Interval = 1000 / speedTrackBar.Value; // 初期の切り替え速度
+        sharedTimer.Tick += SharedTimer_Tick;
+    }
+
+    private void SharedTimer_Tick(object? sender, EventArgs e)
+    {
+        if (qrCodes == null || qrCodes.Count == 0)
+        {
+            return;
+        }
+
+        while (currentIndex < qrCodes.Count && QRCodeDisplayForm.SkipIndexes![currentIndex])
+        {
+            currentIndex = (currentIndex + 1) % qrCodes.Count;
+        }
+
+        qrCodeDisplayForm?.UpdateQRCode(currentIndex);
+        qrCodeIndexDisplayForm?.UpdateQRCode(currentIndex);
+
+        currentIndex = (currentIndex + 1) % qrCodes.Count;
     }
 
     private string ComputeSHA256(byte[] data)
@@ -80,6 +104,8 @@
 
             qrCodeIndexDisplayForm = new QRCodeIndexDisplayForm(qrCodes, skipIndexes);
             qrCodeIndexDisplayForm.Show();
+
+            sharedTimer.Start(); // タイマーをスタート
         }
     }
 
@@ -130,12 +156,7 @@
         {
             int fps = speedTrackBar.Value;
             int interval = 1000 / fps; // fpsをミリ秒に変換
-            qrCodeDisplayForm.SetInterval(interval);
-
-            if (qrCodeIndexDisplayForm != null)
-            {
-                qrCodeIndexDisplayForm.SetInterval(interval);
-            }
+            sharedTimer.Interval = interval;
         }
     }
 }
