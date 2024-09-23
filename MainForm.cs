@@ -155,7 +155,7 @@ public class MainForm : Form
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 byte[] fileData = FileCompressor.GetFileData(openFileDialog.FileName);
-                qrCodes = QRCodeGenerator.GenerateQRCodes(fileData, 1000); // 例として1000バイトごとに分割
+                qrCodes = QRCodeGenerator.GenerateQRCodes(fileData, 1000, selectedColor); // 色を指定してQRコードを生成
 
                 var info = new QRCodeInfo
                 {
@@ -165,7 +165,8 @@ public class MainForm : Form
                 };
 
                 string yamlInfo = info.ToYaml();
-                var infoQRCode = QRCodeGenerator.GenerateQRCode(yamlInfo);
+                var infoQRCode = QRCodeGenerator.GenerateInfoQRCode(info, selectedColor); // 色を指定して情報QRコードを生成
+
                 var infoForm = new QRCodeInfoForm(infoQRCode);
                 infoForm.StartButtonClicked += (s, args) => StartDisplay();
                 infoForm.Show();

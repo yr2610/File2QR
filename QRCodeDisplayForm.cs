@@ -100,21 +100,8 @@ public class QRCodeDisplayForm : Form
     {
         if (index < qrCodes.Count)
         {
-            var qrWriter = new BarcodeWriter<Bitmap>
-            {
-                Format = BarcodeFormat.QR_CODE,
-                Options = new QrCodeEncodingOptions
-                {
-                    Height = qrCodes[index].Height,
-                    Width = qrCodes[index].Width,
-                    Margin = 1
-                },
-                Renderer = new BitmapRenderer { Foreground = color } // 色を設定
-            };
-
-            // QRコードの内容を取得して新たに生成
-            var qrCodeContent = GetQRCodeContent(qrCodes[index]);
-            qrCodePictureBox.Image = qrWriter.Write(qrCodeContent);
+            var qrCode = QRCodeGenerator.GenerateQRCode(GetQRCodeContent(qrCodes[index]), color);
+            qrCodePictureBox.Image = qrCode;
             indexLabel.Text = $"Index: {index + 1}/{qrCodes.Count}";
         }
     }
