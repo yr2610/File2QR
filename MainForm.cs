@@ -1,8 +1,12 @@
-﻿public class MainForm : Form
+﻿using YamlDotNet.Serialization;
+
+public class MainForm : Form
 {
     private Button selectFileButton;
     private Button startDisplayButton;
     private TrackBar speedTrackBar;
+    private Button colorSelectButton;
+    private Color selectedColor = Color.Black; // デフォルトの色を黒に設定
     private QRCodeDisplayForm? qrCodeDisplayForm;
     private QRCodeIndexDisplayForm? qrCodeIndexDisplayForm;
     private List<Bitmap>? qrCodes;
@@ -15,10 +19,12 @@
         selectFileButton = new Button { Text = "ファイルを選択", Dock = DockStyle.Top };
         startDisplayButton = new Button { Text = "QRコード表示開始", Dock = DockStyle.Top, Enabled = false };
         speedTrackBar = new TrackBar { Minimum = 1, Maximum = 60, Value = 2, Dock = DockStyle.Top }; // 1fpsから60fpsに設定
+        colorSelectButton = new Button { Text = "色を選択", Dock = DockStyle.Top };
 
         selectFileButton.Click += SelectFileButton_Click;
         startDisplayButton.Click += StartDisplayButton_Click;
         speedTrackBar.ValueChanged += SpeedTrackBar_ValueChanged;
+        colorSelectButton.Click += ColorSelectButton_Click;
 
         var skipInputTextBox = new TextBox { Dock = DockStyle.Top };
         var skipButton = new Button { Text = "スキップ", Dock = DockStyle.Top };
@@ -57,6 +63,7 @@
         Controls.Add(cancelSkipTextBox);
         Controls.Add(skipButton);
         Controls.Add(skipInputTextBox);
+        Controls.Add(colorSelectButton);
         Controls.Add(speedTrackBar);
         Controls.Add(startDisplayButton);
         Controls.Add(selectFileButton);
@@ -64,6 +71,38 @@
         sharedTimer = new System.Windows.Forms.Timer();
         sharedTimer.Interval = 1000 / speedTrackBar.Value; // 初期の切り替え速度
         sharedTimer.Tick += SharedTimer_Tick;
+    }
+
+    private void ColorSelectButton_Click(object? sender, EventArgs e)
+    {
+        using (var colorDialog = new ColorDialog())
+        {
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                selectedColor = colorDialog.Color;
+                // 設定を記憶するために、config.yaml に保存する処理を追加
+                SaveColorToConfig(selectedColor);
+            }
+        }
+    }
+
+    private void SaveColorToConfig(Color color)
+    {
+        // config.yaml に色を保存する処理を実装
+        var config = new { Color = ColorTranslator.ToHtml(color) };
+        var yaml = new Serializer().Serialize(config);
+        File.WriteAllText("config.yaml", yaml);
+    }
+
+    private Color LoadColorFromConfig()
+    {
+        if (File.Exists("config.yaml"))
+        {
+            var yaml = File.ReadAllText("config.yaml");
+            var config = new Deserializer().Deserialize<dynamic>(yaml);
+            return ColorTranslator.FromHtml(config["Color"]);
+        }
+        return Color.Black; // デフォルトの色を黒に設定
     }
 
     private void SharedTimer_Tick(object? sender, EventArgs e)
@@ -78,8 +117,8 @@
             currentIndex = (currentIndex + 1) % qrCodes.Count;
         }
 
-        qrCodeDisplayForm?.UpdateQRCode(currentIndex);
-        qrCodeIndexDisplayForm?.UpdateQRCode(currentIndex);
+        qrCodeDisplayForm?.UpdateQRCode(currentIndex, selectedColor);
+        qrCodeIndexDisplayForm?.UpdateQRCode(currentIndex, selectedColor);
 
         currentIndex = (currentIndex + 1) % qrCodes.Count;
     }
@@ -145,6 +184,8 @@
 
             qrCodeIndexDisplayForm = new QRCodeIndexDisplayForm(qrCodes, skipIndexes);
             qrCodeIndexDisplayForm.Show();
+
+            sharedTimer.Start(); // タイマーをスタート
         }
     }
 

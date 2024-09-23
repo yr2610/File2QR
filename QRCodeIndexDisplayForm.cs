@@ -25,22 +25,22 @@ public class QRCodeIndexDisplayForm : Form
         pictureBox.Size = new Size(width, pictureBox.Height); // 幅だけを変更
     }
 
-    public void UpdateQRCode(int index)
+    public void UpdateQRCode(int index, Color color)
     {
-        var qrWriter = new BarcodeWriter<Bitmap>
+        var dataMatrixWriter = new BarcodeWriter<Bitmap>
         {
-            Format = BarcodeFormat.QR_CODE,
+            Format = BarcodeFormat.DATA_MATRIX, // DataMatrix に変更
             Options = new QrCodeEncodingOptions
             {
                 Height = 100,
                 Width = 100,
                 Margin = 1
             },
-            Renderer = new BitmapRenderer()
+            Renderer = new BitmapRenderer { Foreground = color } // 色を設定
         };
 
         string hexIndex = index.ToString("X"); // 16進数に変換
-        pictureBox.Image = qrWriter.Write(hexIndex);
+        pictureBox.Image = dataMatrixWriter.Write(hexIndex);
     }
 
 }

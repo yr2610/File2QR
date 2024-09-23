@@ -1,4 +1,8 @@
-﻿public class QRCodeDisplayForm : Form
+﻿using ZXing.QrCode;
+using ZXing.Windows.Compatibility;
+using ZXing;
+
+public class QRCodeDisplayForm : Form
 {
     private PictureBox qrCodePictureBox = null!;
     private Label indexLabel = null!;
@@ -92,12 +96,33 @@
         }
     }
 
-    public void UpdateQRCode(int index)
+    public void UpdateQRCode(int index, Color color)
     {
         if (index < qrCodes.Count)
         {
-            qrCodePictureBox.Image = qrCodes[index];
+            var qrWriter = new BarcodeWriter<Bitmap>
+            {
+                Format = BarcodeFormat.QR_CODE,
+                Options = new QrCodeEncodingOptions
+                {
+                    Height = qrCodes[index].Height,
+                    Width = qrCodes[index].Width,
+                    Margin = 1
+                },
+                Renderer = new BitmapRenderer { Foreground = color } // 色を設定
+            };
+
+            // QRコードの内容を取得して新たに生成
+            var qrCodeContent = GetQRCodeContent(qrCodes[index]);
+            qrCodePictureBox.Image = qrWriter.Write(qrCodeContent);
             indexLabel.Text = $"Index: {index + 1}/{qrCodes.Count}";
         }
+    }
+
+    private string GetQRCodeContent(Bitmap qrCode)
+    {
+        var reader = new BarcodeReader();
+        var result = reader.Decode(qrCode);
+        return result?.Text ?? string.Empty;
     }
 }
