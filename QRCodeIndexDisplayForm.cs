@@ -27,11 +27,6 @@ public class QRCodeIndexDisplayForm : Form
 
     public void UpdateQRCode(int index)
     {
-        if (QRCodeDisplayForm.SkipIndexes == null || QRCodeDisplayForm.SkipIndexes.Length == 0)
-        {
-            return;
-        }
-
         var qrWriter = new BarcodeWriter<Bitmap>
         {
             Format = BarcodeFormat.QR_CODE,
@@ -46,4 +41,5 @@ public class QRCodeIndexDisplayForm : Form
 
         pictureBox.Image = qrWriter.Write($"Index: {index + 1}/{qrCodes.Count}");
     }
+
 }
