@@ -8,8 +8,7 @@ public class QRCodeIndexDisplayForm : Form
     private PictureBox pictureBox;
     private System.Windows.Forms.Timer timer;
     private List<Bitmap> qrCodes;
-    private bool[] skipIndexes; // スキップするインデックスを管理する配列
-    private int currentIndex = 0;
+    private bool[] skipIndexes;
 
     public QRCodeIndexDisplayForm(List<Bitmap> qrCodes, bool[] skipIndexes)
     {
@@ -36,9 +35,14 @@ public class QRCodeIndexDisplayForm : Form
 
     private void ShowNextQRCode()
     {
-        while (skipIndexes[currentIndex])
+        if (QRCodeDisplayForm.skipIndexes == null || QRCodeDisplayForm.skipIndexes.Length == 0)
         {
-            currentIndex = (currentIndex + 1) % qrCodes.Count;
+            return;
+        }
+
+        while (QRCodeDisplayForm.skipIndexes[QRCodeDisplayForm.currentIndex])
+        {
+            QRCodeDisplayForm.currentIndex = (QRCodeDisplayForm.currentIndex + 1) % QRCodeDisplayForm.skipIndexes.Length;
         }
 
         var qrWriter = new BarcodeWriter<Bitmap>
@@ -53,8 +57,8 @@ public class QRCodeIndexDisplayForm : Form
             Renderer = new BitmapRenderer()
         };
 
-        pictureBox.Image = qrWriter.Write($"Index: {currentIndex + 1}/{qrCodes.Count}");
-        currentIndex = (currentIndex + 1) % qrCodes.Count;
+        pictureBox.Image = qrWriter.Write($"Index: {QRCodeDisplayForm.currentIndex + 1}/{qrCodes.Count}");
+        QRCodeDisplayForm.currentIndex = (QRCodeDisplayForm.currentIndex + 1) % QRCodeDisplayForm.skipIndexes.Length;
     }
 
     public void SetInterval(int interval)

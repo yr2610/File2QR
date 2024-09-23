@@ -4,13 +4,13 @@
     private Label indexLabel = null!;
     private System.Windows.Forms.Timer displayTimer = null!;
     private List<Bitmap> qrCodes;
-    private bool[] skipIndexes;
-    private int currentIndex = 0;
+    public static bool[]? skipIndexes; // null 許容に変更
+    public static int currentIndex = 0; // 静的プロパティに変更
 
     public QRCodeDisplayForm(List<Bitmap> qrCodes, bool[] skipIndexes)
     {
+        QRCodeDisplayForm.skipIndexes = skipIndexes; // 静的プロパティに設定
         this.qrCodes = qrCodes;
-        this.skipIndexes = skipIndexes;
         InitializeComponents();
         StartDisplay();
     }
@@ -43,7 +43,7 @@
 
     private void DisplayTimer_Tick(object? sender, EventArgs e)
     {
-        while (currentIndex < qrCodes.Count && skipIndexes[currentIndex])
+        while (currentIndex < qrCodes.Count && skipIndexes![currentIndex])
         {
             currentIndex++;
         }
@@ -52,17 +52,13 @@
         {
             qrCodePictureBox.Image = qrCodes[currentIndex];
             indexLabel.Text = $"Index: {currentIndex + 1}/{qrCodes.Count}";
-            currentIndex++;
-        }
-        else
-        {
-            currentIndex = 0; // 最初のQRコードに戻る
+            currentIndex = (currentIndex + 1) % qrCodes.Count; // 修正
         }
     }
 
     public void SkipIndex(int index)
     {
-        if (index >= 0 && index < skipIndexes.Length)
+        if (index >= 0 && index < skipIndexes!.Length)
         {
             skipIndexes[index] = true;
         }
@@ -77,7 +73,7 @@
         {
             for (int i = start; i <= end; i++)
             {
-                if (i >= 0 && i < skipIndexes.Length)
+                if (i >= 0 && i < skipIndexes!.Length)
                 {
                     skipIndexes[i] = true;
                 }
@@ -97,7 +93,7 @@
                 if ((bitmask & (1 << i)) != 0)
                 {
                     int index = level * 8 + i;
-                    if (index >= 0 && index < skipIndexes.Length)
+                    if (index >= 0 && index < skipIndexes!.Length)
                     {
                         skipIndexes[index] = true;
                     }
@@ -108,7 +104,7 @@
 
     public void CancelSkipIndex(int index)
     {
-        if (index >= 0 && index < skipIndexes.Length)
+        if (index >= 0 && index < skipIndexes!.Length)
         {
             skipIndexes[index] = false;
         }
