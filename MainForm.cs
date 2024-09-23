@@ -14,7 +14,7 @@
     {
         selectFileButton = new Button { Text = "ファイルを選択", Dock = DockStyle.Top };
         startDisplayButton = new Button { Text = "QRコード表示開始", Dock = DockStyle.Top, Enabled = false };
-        speedTrackBar = new TrackBar { Minimum = 1, Maximum = 60, Value = 30, Dock = DockStyle.Top }; // 1fpsから60fpsに設定
+        speedTrackBar = new TrackBar { Minimum = 1, Maximum = 60, Value = 2, Dock = DockStyle.Top }; // 1fpsから60fpsに設定
 
         selectFileButton.Click += SelectFileButton_Click;
         startDisplayButton.Click += StartDisplayButton_Click;
@@ -127,8 +127,6 @@
 
                 string yamlInfo = info.ToYaml();
                 var infoQRCode = QRCodeGenerator.GenerateQRCode(yamlInfo);
-                qrCodes.Insert(0, infoQRCode); // 情報QRコードをリストの最初に追加
-
                 var infoForm = new QRCodeInfoForm(infoQRCode);
                 infoForm.StartButtonClicked += (s, args) => StartDisplay();
                 infoForm.Show();
