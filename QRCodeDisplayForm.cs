@@ -17,13 +17,17 @@
 
     private void InitializeComponents()
     {
-        this.qrCodePictureBox = new PictureBox();
-        this.indexLabel = new Label();
+        this.qrCodePictureBox = new PictureBox
+        {
+            Dock = DockStyle.Fill,
+            SizeMode = PictureBoxSizeMode.Zoom
+        };
+        this.indexLabel = new Label
+        {
+            Dock = DockStyle.Top,
+            TextAlign = ContentAlignment.MiddleCenter
+        };
         this.displayTimer = new System.Windows.Forms.Timer();
-
-        this.qrCodePictureBox.Dock = DockStyle.Fill;
-        this.indexLabel.Dock = DockStyle.Top;
-        this.indexLabel.TextAlign = ContentAlignment.MiddleCenter;
 
         this.Controls.Add(this.qrCodePictureBox);
         this.Controls.Add(this.indexLabel);
@@ -52,7 +56,7 @@
         }
         else
         {
-            this.displayTimer.Stop();
+            currentIndex = 0; // 最初のQRコードに戻る
         }
     }
 
